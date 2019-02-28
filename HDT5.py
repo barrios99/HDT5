@@ -5,18 +5,20 @@ import simpy
 import random
 import statistics as stats
 
-v_p=2 #velocidad del procesador
 contador_ins = 0
-intervalo = 10
 
 def proceso(m_ram, cant_p, espacio, env):
     global tiempo_procesos
     inicio=env.now
-    random.seed(25)
     yield m_ram.put(espacio)
     with cpu.request() as turno:
         yield turno
-        yield env.timeout(cant_p/v_p)
+        if cant_p<3:
+            cant=cant_p
+        else:
+            cant_p-=3
+            cant=3
+        yield env.timeout(cant)
         yield m_ram.get(espacio)
     print('Pasando el proceso que usa '+ str(espacio) +' de RAM con '+ str(cant_p)+' de instrucciones en %d segundos'%env.now)
     tiempo_trans=env.now-inicio
@@ -35,8 +37,9 @@ env = simpy.Environment()
 m_ram = simpy.Container(env, init=0, capacity=100)
 cpu = simpy.Resource(env, capacity = 1)
 tiempo_procesos=[]
+random.seed(25)
 for i in range(25):
-    env.process(create(m_ram, int(random.expovariate(1.0/intervalo)),random.randint(1,10),env))  
+    env.process(create(m_ram,random.randint(1,10),random.randint(1,10),env))  
 env.run()
 print ("tiempo promedio por proceso es: ", stats.mean(tiempo_procesos))
 print ("la desviacion estandar es: ", stats.pstdev(tiempo_procesos))
