@@ -3,37 +3,42 @@
 
 import simpy
 import random
+import statistics as stats
 
 v_p=2 #velocidad del procesador
 contador_ins = 0
 intervalo = 10
 
-def proceso(numero, m_ram, cant_p, space, env):
+def proceso(m_ram, cant_p, espacio, env):
+    global tiempo_procesos
     inicio=env.now
     random.seed(25)
-    espacio = space
     yield m_ram.put(espacio)
     with cpu.request() as turno:
         yield turno
         yield env.timeout(cant_p/v_p)
-    print('Pasando el proceso #' +str(i)+' que usa '+ str(espacio) +' de RAM con '+ str(cant_p)+' de instrucciones en %d segundos'%env.now)
+        yield m_ram.get(espacio)
+    print('Pasando el proceso que usa '+ str(espacio) +' de RAM con '+ str(cant_p)+' de instrucciones en %d segundos'%env.now)
     tiempo_trans=env.now-inicio
-    print (str(i)+' se tardo %f para el proceso' % (tiempo_trans))
-#def prueba(env):
- #   p = env.process(proceso(m_ram,cant_procesos,cpu,env))
-  #  yield p
+    print ('se tardo %f para el proceso' % (tiempo_trans))
+    tiempo_procesos.append(tiempo_trans)
+
+
+def create(m_ram, cant_p, space, env):
+    yield env.timeout(random.expovariate(1.0 / 10))
+    env.process(proceso(m_ram, cant_p, space, env))
+
+
 
 env = simpy.Environment()
 #Crear la memoria RAM, capacidad maxima 100
-m_ram = simpy.Container(env, init=100)
+m_ram = simpy.Container(env, init=0, capacity=100)
 cpu = simpy.Resource(env, capacity = 1)
-def create(numero, m_ram, cant_p, space, env):
-    yield env.timeout(random.expovariate(1 / 0.5))
-    env.process(proceso(numero,m_ram, int(random.expovariate(1.0/intervalo)),random.randint(1,10),env))
-
+tiempo_procesos=[]
 for i in range(25):
-    env.process(create(i,m_ram, int(random.expovariate(1.0/intervalo)),random.randint(1,10),env))  
+    env.process(create(m_ram, int(random.expovariate(1.0/intervalo)),random.randint(1,10),env))  
 env.run()
-
+print ("tiempo promedio por proceso es: ", stats.mean(tiempo_procesos))
+print ("la desviacion estandar es: ", stats.pstdev(tiempo_procesos))
 
 
