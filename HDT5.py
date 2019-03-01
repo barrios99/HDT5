@@ -29,7 +29,7 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
             #mientras hayan instrucciones 
             while cant_p>0:
                 #si tiene 3 o menos instrucciones las hace y termina el programa
-                if cant_p<=6:
+                if cant_p<=3:
                     cant_p=0
                     yield env.timeout(1)
                     yield m_ram.get(espacio)
@@ -39,8 +39,8 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                     print ('El proceso %s tardo %f segundos'%(numero,tiempo_trans))
                     tiempo_procesos.append(tiempo_trans)
                 # si hay mas de 3 instrucciones realiza 3, y verifica si hay waiting    
-                elif cant_p>6:
-                    cant_p-=6
+                elif cant_p>3:
+                    cant_p-=3
                     yield env.timeout(1)
                     espera=random.randint(1,2)
                     ciclo=3
@@ -51,7 +51,7 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                     
 #crea un nuevo programa
 def create(numero, m_ram, cant_p, space, env, cpu):
-    yield env.timeout(random.expovariate(1.0 / 1))
+    yield env.timeout(random.expovariate(1.0 / 10))
     env.process(proceso(numero, m_ram, cant_p, space, env,cpu))
 
 #crea el ambiente de simpy
@@ -59,12 +59,12 @@ env = simpy.Environment()
 #Crear la memoria RAM, capacidad maxima 100
 m_ram = simpy.Container(env, init=0, capacity=100)
 #Crear el CPU, la capacity es la velocidad del cpu
-cpu = simpy.Resource(env, capacity = 1)
+cpu = simpy.Resource(env, capacity = 2)
 #guarda el tiempo que le toma a cada proceso realizar sus instrucciones 
 tiempo_procesos=[]
 random.seed(800)
 #genera la cantidad de procesos que se quieran simular 
-for i in range(50):
+for i in range(200):
     env.process(create('%s'%i, m_ram,random.randint(1,10),random.randint(1,10),env,cpu))  
 env.run()
 #Calcula el promedio y desviacion estandar del tiempo usando la libreria de estadisticas 
