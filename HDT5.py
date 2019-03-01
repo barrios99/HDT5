@@ -7,19 +7,18 @@ import simpy
 import random
 import statistics as stats
 
-
 def proceso(numero, m_ram, cant_p, espacio, env,cpu):
     global tiempo_procesos
     #verifica que haya espacio en la RAM
     inicio=env.now
-    print('Entrando el proceso %s que usa '%(numero)+ str(espacio) +' de RAM con '+ str(cant_p)+' de instrucciones en el %d segundos'%(env.now))
+    print('Entrando el proceso %s que usa '%(numero)+ str(espacio) +' de RAM con '+ str(cant_p)+' de instrucciones en %d segundos'%(env.now))
     yield m_ram.put(espacio)
     yield env.timeout(1)
-    print('El proceso %s esta solicitando acceso  en el %d segundos'%(numero,env.now))
+    print('El proceso %s está solicitando acceso en %d segundos'%(numero,env.now))
     yield env.timeout(0.1)
     with cpu.request() as req:
         yield req
-        print('El proceso %s acceso en el %d segundos'%(numero,env.now))
+        print('El proceso %s accesó en %d segundos'%(numero,env.now))
         yield env.timeout(0.1)
         #mientras hayan instrucciones 
         while cant_p>0:
@@ -28,9 +27,9 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                 cant_p=0
                 yield env.timeout(1)
                 yield m_ram.get(espacio)
-                print ('Proceso %s terminado en el %d segundos' %(numero,env.now))
+                print ('Proceso %s terminado en %d segundos' %(numero,env.now))
                 tiempo_trans=env.now-inicio
-                print ('El proceso %s tardo %f segundos'%(numero,tiempo_trans))
+                print ('El proceso %s tardó %f segundos'%(numero,tiempo_trans))
                 tiempo_procesos.append(tiempo_trans)
             # si hay mas de 3 instrucciones realiza 3, y verifica si hay waiting    
             elif cant_p>3:
@@ -61,6 +60,4 @@ for i in range(25):
 env.run()
 #Calcula el promedio y desviacion estandar del tiempo usando la libreria de estadisticas 
 print ("Tiempo promedio por proceso es: ", stats.mean(tiempo_procesos))
-print ("La desviacion estandar es: ", stats.pstdev(tiempo_procesos))
-
-
+print ("La desviación estándar es: ", stats.pstdev(tiempo_procesos))
