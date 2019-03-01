@@ -8,7 +8,7 @@ import random
 import statistics as stats
 
 
-def proceso(numero, m_ram, cant_p, espacio, env):
+def proceso(numero, m_ram, cant_p, espacio, env,cpu):
     ciclo=0
     global tiempo_procesos
     if ciclo==0:
@@ -25,32 +25,30 @@ def proceso(numero, m_ram, cant_p, espacio, env):
             print('El proceso %s acceso en el %d segundos'%(numero,env.now))
             yield env.timeout(0.1)
             ciclo=2
-            while cant_p>0:   
+            while cant_p>0:
                 if cant_p<=3:
                     cant_p=0
                     yield env.timeout(1)
                     yield m_ram.get(espacio)
                     ciclo=4
+                    print ('Proceso %s terminado en el %d segundos' %(numero,env.now))
+                    tiempo_trans=env.now-inicio
+                    print ('El proceso %s tardo %f segundos'%(numero,tiempo_trans))
+                    tiempo_procesos.append(tiempo_trans)
                 elif cant_p>3:
                     cant_p-=3
                     yield env.timeout(1)
                     espera=random.randint(1,2)
                     ciclo=3
                     if espera==1:
-                        tiempo_esp=random.randint(1,5) #tiempo de operaciones de entrada y salida
+                        tiempo_esp=random.randint(1,3) #tiempo de operaciones de entrada y salida
                         yield env.timeout(tiempo_esp)
                         ciclo=3
-                
-    if ciclo==4:
-        print ('Proceso %s terminado en el %d segundos' %(numero,env.now))
-        tiempo_trans=env.now-inicio
-        print ('El proceso %s tardo %f segundos'%(numero,tiempo_trans))
-        tiempo_procesos.append(tiempo_trans)
+                    
 
-
-def create(numero, m_ram, cant_p, space, env):
+def create(numero, m_ram, cant_p, space, env, cpu):
     yield env.timeout(random.expovariate(1.0 / 10))
-    env.process(proceso(numero, m_ram, cant_p, space, env))
+    env.process(proceso(numero, m_ram, cant_p, space, env,cpu))
 
 #crea el ambiente de simpy
 env = simpy.Environment()
@@ -63,7 +61,7 @@ tiempo_procesos=[]
 random.seed(800)
 #genera la cantidad de procesos que se quieran simular 
 for i in range(25):
-    env.process(create('%s'%i, m_ram,random.randint(1,10),random.randint(1,10),env))  
+    env.process(create('%s'%i, m_ram,random.randint(1,10),random.randint(1,10),env,cpu))  
 env.run()
 #Calcula el promedio y desviacion estandar del tiempo usando la libreria de estadisticas 
 print ("Tiempo promedio por proceso es: ", stats.mean(tiempo_procesos))
