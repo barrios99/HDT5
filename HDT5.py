@@ -9,8 +9,9 @@ import statistics as stats
 
 
 def proceso(numero, m_ram, cant_p, espacio, env,cpu):
-    ciclo=0
+    ciclo=0 #fase en la que se encuentra
     global tiempo_procesos
+    #verifica que haya espacio en la RAM
     if ciclo==0:
         ciclo=1
         inicio=env.now
@@ -25,7 +26,9 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
             print('El proceso %s acceso en el %d segundos'%(numero,env.now))
             yield env.timeout(0.1)
             ciclo=2
+            #mientras hayan instrucciones 
             while cant_p>0:
+                #si tiene 3 o menos instrucciones las hace y termina el programa
                 if cant_p<=3:
                     cant_p=0
                     yield env.timeout(1)
@@ -35,6 +38,7 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                     tiempo_trans=env.now-inicio
                     print ('El proceso %s tardo %f segundos'%(numero,tiempo_trans))
                     tiempo_procesos.append(tiempo_trans)
+                # si hay mas de 3 instrucciones realiza 3, y verifica si hay waiting    
                 elif cant_p>3:
                     cant_p-=3
                     yield env.timeout(1)
@@ -45,7 +49,7 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                         yield env.timeout(tiempo_esp)
                         ciclo=3
                     
-
+#crea un nuevo programa
 def create(numero, m_ram, cant_p, space, env, cpu):
     yield env.timeout(random.expovariate(1.0 / 10))
     env.process(proceso(numero, m_ram, cant_p, space, env,cpu))
