@@ -64,7 +64,7 @@ cpu = simpy.Resource(env, capacity = 1)
 tiempo_procesos=[]
 random.seed(800)
 #genera la cantidad de procesos que se quieran simular 
-for i in range(50):
+for i in range(100):
     env.process(create('%s'%i, m_ram,random.randint(1,10),random.randint(1,10),env,cpu))  
 env.run()
 #Calcula el promedio y desviacion estandar del tiempo usando la libreria de estadisticas 
