@@ -51,13 +51,13 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                     
 #crea un nuevo programa
 def create(numero, m_ram, cant_p, space, env, cpu):
-    yield env.timeout(random.expovariate(1.0 / 1))
+    yield env.timeout(random.expovariate(1.0 / 10))
     env.process(proceso(numero, m_ram, cant_p, space, env,cpu))
 
 #crea el ambiente de simpy
 env = simpy.Environment()
 #Crear la memoria RAM, capacidad maxima 100
-m_ram = simpy.Container(env, init=0, capacity=100)
+m_ram = simpy.Container(env, init=0, capacity=200)
 #Crear el CPU, la capacity es la velocidad del cpu
 cpu = simpy.Resource(env, capacity = 1)
 #guarda el tiempo que le toma a cada proceso realizar sus instrucciones 
