@@ -51,7 +51,7 @@ def proceso(numero, m_ram, cant_p, espacio, env,cpu):
                     
 #crea un nuevo programa
 def create(numero, m_ram, cant_p, space, env, cpu):
-    yield env.timeout(random.expovariate(1.0 / 10))
+    yield env.timeout(random.expovariate(1.0 / 5))
     env.process(proceso(numero, m_ram, cant_p, space, env,cpu))
 
 #crea el ambiente de simpy
